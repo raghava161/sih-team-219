@@ -45,22 +45,22 @@ class CloudRemover:
     def validate_satellite_image(self, img_bgr):
         """
         Validates if the input image is a plausible satellite/aerial terrain image.
-        Rejects human silhouettes, clipart/graphics, portraits, faces, non-aerial photos, and featureless sky.
+        Rejects human faces, human body silhouettes, clipart drawings, and blank images.
+        Accurately allows desert, sandy, hazy, and low-contrast satellite images.
         """
         gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-        hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
         total_px = float(gray.size)
-        
-        # ── 1. Silhouette / Clipart / Graphic Icon Filter ──────────────────
-        # Silhouettes, drawings, and clipart consist almost entirely of extreme black (< 30) and extreme white (> 225)
-        black_px = np.sum(gray < 30)
-        white_px = np.sum(gray > 225)
+
+        # ── 1. Clipart / Vector Graphic / Pure Black & White Silhouette Filter ─────
+        # Silhouettes, drawings, and clipart consist almost entirely of extreme black (< 20) and extreme white (> 235)
+        black_px = np.sum(gray < 20)
+        white_px = np.sum(gray > 235)
         extreme_ratio = (black_px + white_px) / total_px
 
-        if extreme_ratio > 0.65:
-            return False, "⚠️ Invalid Image: Graphic silhouette, clipart, or non-satellite drawing detected! Please upload an optical satellite image."
+        if extreme_ratio > 0.70:
+            return False, "⚠️ Invalid Image: Graphic silhouette, clipart, or vector drawing detected! Please upload an optical satellite image."
 
-        # ── 2. Face Detection via OpenCV Haar Cascade ──────────────────────
+        # ── 2. Human Face Detection via OpenCV Haar Cascade ────────────────────────
         face_cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
         if os.path.exists(face_cascade_path):
             face_cascade = cv2.CascadeClassifier(face_cascade_path)
@@ -68,29 +68,10 @@ class CloudRemover:
             if len(faces) > 0:
                 return False, "⚠️ Invalid Image: Human face detected! Please upload a valid satellite/aerial terrain image."
 
-        # ── 3. Human Skin Tone Percentage Check ────────────────────────────
-        lower_skin1 = np.array([0, 25, 60], dtype=np.uint8)
-        upper_skin1 = np.array([25, 170, 255], dtype=np.uint8)
-        skin_mask1 = cv2.inRange(hsv, lower_skin1, upper_skin1)
-        
-        lower_skin2 = np.array([170, 25, 60], dtype=np.uint8)
-        upper_skin2 = np.array([180, 170, 255], dtype=np.uint8)
-        skin_mask2 = cv2.inRange(hsv, lower_skin2, upper_skin2)
-        
-        skin_mask = cv2.bitwise_or(skin_mask1, skin_mask2)
-        skin_pct = (np.sum(skin_mask > 0) / total_px) * 100
-        if skin_pct > 22.0:
-            return False, "⚠️ Invalid Image: Non-satellite photo detected (high skin tone content). Please upload an optical satellite image."
-
-        # ── 4. Featureless Sky & Zero-Texture Filter ───────────────────────
+        # ── 3. Solid Blank / Single-Color Image Filter ─────────────────────────────
         lap_var = cv2.Laplacian(gray, cv2.CV_64F).var()
-        if lap_var < 12.0:
-            return False, "⚠️ Invalid Image: Featureless sky or uniform background detected. No earth terrain structures found."
-
-        sky_mask = cv2.inRange(hsv, np.array([90, 50, 100]), np.array([130, 255, 255]))
-        sky_pct = (np.sum(sky_mask > 0) / total_px) * 100
-        if sky_pct > 75.0 and lap_var < 30.0:
-            return False, "⚠️ Invalid Image: Plain blue sky detected (no ground terrain features found)."
+        if lap_var < 2.5:
+            return False, "⚠️ Invalid Image: Solid blank or single-color image detected. No terrain features found."
 
         return True, "Valid satellite image"
 
