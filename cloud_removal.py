@@ -42,6 +42,43 @@ class CloudRemover:
         dehazed = np.clip(dehazed, 0, 255).astype(np.uint8)
         return dehazed, dark_channel
 
+    def validate_satellite_image(self, img_bgr):
+        """
+        Validates if the input image is a plausible satellite/aerial terrain image.
+        Rejects human faces/portraits, non-aerial photos, and featureless sky images.
+        """
+        gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+        
+        # 1. Face Detection via OpenCV Haar Cascade
+        face_cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+        if os.path.exists(face_cascade_path):
+            face_cascade = cv2.CascadeClassifier(face_cascade_path)
+            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=4, minSize=(30, 30))
+            if len(faces) > 0:
+                return False, "⚠️ Invalid Image: Human face detected! Please upload a valid satellite/aerial terrain image."
+
+        # 2. Human Skin Tone Percentage Check (HSV Color Space)
+        hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
+        lower_skin1 = np.array([0, 25, 60], dtype=np.uint8)
+        upper_skin1 = np.array([25, 170, 255], dtype=np.uint8)
+        skin_mask1 = cv2.inRange(hsv, lower_skin1, upper_skin1)
+        
+        lower_skin2 = np.array([170, 25, 60], dtype=np.uint8)
+        upper_skin2 = np.array([180, 170, 255], dtype=np.uint8)
+        skin_mask2 = cv2.inRange(hsv, lower_skin2, upper_skin2)
+        
+        skin_mask = cv2.bitwise_or(skin_mask1, skin_mask2)
+        skin_pct = (np.sum(skin_mask > 0) / skin_mask.size) * 100
+        if skin_pct > 25.0:
+            return False, "⚠️ Invalid Image: Non-satellite photo detected (high skin tone content). Please upload an optical satellite image."
+
+        # 3. Featureless Sky / Uniform Image Check (Laplacian Variance)
+        lap_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+        if lap_var < 10.0:
+            return False, "⚠️ Invalid Image: Featureless sky or uniform background detected. No earth terrain structures found."
+
+        return True, "Valid satellite image"
+
     def process(self, input_path, output_path, mask_path=None):
         """
         Full cloud removal and satellite image clarity enhancement pipeline.
@@ -53,6 +90,11 @@ class CloudRemover:
         img_bgr = cv2.imread(input_path)
         if img_bgr is None:
             raise ValueError("Failed to load input satellite image.")
+
+        # Guardrail: Validate that image is actually a satellite/aerial image
+        is_valid, validation_msg = self.validate_satellite_image(img_bgr)
+        if not is_valid:
+            raise ValueError(validation_msg)
 
         # Step 1: Atmospheric Dehaze Approximation
         dehazed, dark_channel = self.estimate_dehaze(img_bgr)
