@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛰️ Satellite Cloud Removal & Analysis System | SIH 2026</title>
+    <meta name="description" content="AI & Computer Vision based Satellite Cloud Removal and Multi-Sector Analysis System for SIH 2026 Problem Statement ID 26209.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Cosmic Animated Background -->
+    <div class="stars-bg"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <div class="app-container">
+        <!-- Top Navbar & Header -->
+        <header class="main-header">
+            <div class="header-badge">
+                <span class="badge-dot"></span>
+                <span>SIH 2026 | Problem Statement ID: 26209</span>
+            </div>
+            <h1 class="main-title">
+                <span class="emoji">☁️➔🌤️</span> Satellite Cloud Removal & Analysis
+            </h1>
+            <p class="main-subtitle">
+                Transform cloud-obscured satellite imagery into crystal-clear optical data with real-time computer vision metrics & post-processing sector insights.
+            </p>
+        </header>
+
+        <main class="dashboard-grid">
+            <!-- Left Column: Upload & Processing Card -->
+            <section class="card upload-card glassmorphism">
+                <div class="card-header">
+                    <h2>📤 Upload Cloudy Satellite Image</h2>
+                    <span class="tooltip-icon" title="Supports high-resolution optical satellite imagery (Landsat, Sentinel, PlanetScope)">ℹ️</span>
+                </div>
+                
+                <div class="drop-area" id="drop-area">
+                    <input type="file" id="file-input" accept="image/png, image/jpeg, image/bmp, image/tiff, image/webp" hidden>
+                    <div class="drop-content" id="drop-content">
+                        <div class="upload-icon-wrapper">
+                            <svg class="upload-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <p class="drop-title">Drag & drop cloudy image here</p>
+                        <p class="drop-sub">or <span class="browse-link">browse from device</span></p>
+                        <div class="format-tags">
+                            <span class="tag">JPG</span>
+                            <span class="tag">PNG</span>
+                            <span class="tag">BMP</span>
+                            <span class="tag">TIFF</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Selected File Preview Container -->
+                    <div class="preview-stage hidden" id="preview-stage">
+                        <img id="input-preview" src="" alt="Selected Satellite Preview">
+                        <div class="preview-overlay">
+                            <span id="file-name-label">filename.jpg</span>
+                            <button type="button" class="btn-remove-file" id="remove-file-btn">✕ Change</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="process-btn" disabled>
+                    <span class="btn-text">⚡ Remove Clouds & Enhance</span>
+                </button>
+
+                <!-- Processing Loader State -->
+                <div class="loading-state hidden" id="loading">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Processing satellite spectral bands...</p>
+                    <p class="loading-sub">Applying CLAHE, dehazing & unsharp mask filters</p>
+                </div>
+            </section>
+
+            <!-- Right Column: Results & Metrics Dashboard -->
+            <section class="card results-card glassmorphism hidden" id="results-card">
+                <div class="card-header">
+                    <h2>📊 Enhancements & Real-Time Metrics</h2>
+                    <div class="action-buttons">
+                        <button id="export-pdf-btn" class="btn-primary-sm" style="margin-right: 10px;">
+                            📄 Export PDF Report
+                        </button>
+                        <a id="download-btn" href="#" class="btn-secondary download-link" download>
+                            📥 Download Cleared Image
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Real-Time Metrics Grid -->
+                <div class="metrics-grid" id="metrics-grid">
+                    <div class="metric-box">
+                        <span class="metric-icon">⏱️</span>
+                        <div class="metric-info">
+                            <span class="metric-label">Proc. Time</span>
+                            <span class="metric-value" id="time-metric">—</span>
+                        </div>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-icon">📦</span>
+                        <div class="metric-info">
+                            <span class="metric-label">Input Size</span>
+                            <span class="metric-value" id="input-size-metric">—</span>
+                        </div>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-icon">📦</span>
+                        <div class="metric-info">
+                            <span class="metric-label">Output Size</span>
+                            <span class="metric-value" id="output-size-metric">—</span>
+                        </div>
+                    </div>
+                    <div class="metric-box highlight">
+                        <span class="metric-icon">📈</span>
+                        <div class="metric-info">
+                            <span class="metric-label">Contrast Boost</span>
+                            <span class="metric-value" id="contrast-metric">—</span>
+                        </div>
+                    </div>
+                    <div class="metric-box highlight-cyan">
+                        <span class="metric-icon">🌤️</span>
+                        <div class="metric-info">
+                            <span class="metric-label">Haze Reduction</span>
+                            <span class="metric-value" id="haze-metric">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Histogram & Advanced Metrics Area -->
+                <div class="advanced-metrics-container">
+                    <div class="cloud-coverage-box">
+                        <span class="coverage-label">Estimated Cloud Coverage</span>
+                        <div class="coverage-value-wrapper">
+                            <span class="coverage-icon">☁️</span>
+                            <span class="coverage-value" id="cloud-coverage-est">—</span>
+                        </div>
+                    </div>
+                    <div class="histogram-wrapper">
+                        <h3 class="histogram-title">Pixel Intensity Histogram (Brightness)</h3>
+                        <div class="chart-container-hist">
+                            <canvas id="intensity-histogram"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Split-Screen Interactive Visual Image Comparison Slider -->
+                <div class="comparison-container">
+                    <div class="comparison-header">
+                        <span>☁️ Original Cloudy</span>
+                        <div class="mask-toggle">
+                            <label class="switch">
+                                <input type="checkbox" id="mask-toggle-btn">
+                                <span class="slider round"></span>
+                            </label>
+                            <span>Show Cloud Mask</span>
+                        </div>
+                        <span>🌤️ Cleared Optical</span>
+                    </div>
+                    <div class="image-slider-wrapper" id="slider-wrapper">
+                        <img id="output-image" class="image-after" src="" alt="Cleared Output Image">
+                        <img id="mask-image" class="image-mask hidden" src="" alt="Cloud Mask">
+                        <div class="image-before-wrapper" id="before-wrapper">
+                            <img id="input-image" class="image-before" src="" alt="Cloudy Input Image">
+                        </div>
+                        <div class="slider-handle" id="slider-handle">
+                            <div class="slider-line"></div>
+                            <div class="slider-circle">↔</div>
+                        </div>
+                        <div class="magnifier-glass hidden" id="magnifier-glass"></div>
+                    </div>
+                    <p class="slider-instruction">💡 Drag handle left/right to compare. Hover to use magnifying glass.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Post-Processing Sector Analysis Section -->
+        <section class="analysis-section card glassmorphism hidden" id="analysis-section">
+            <div class="section-title-wrapper">
+                <div>
+                    <h2 class="section-title">🛰️ Multi-Sector Post-Processing Analysis Suite</h2>
+                    <p class="section-desc">Derive real-world actionable intelligence from cleared satellite images across 4 specialized domains.</p>
+                </div>
+            </div>
+
+            <!-- Analysis Module Tabs -->
+            <div class="analysis-tabs">
+                <button class="tab-btn active" data-module="ndvi">
+                    <span class="tab-icon">🌿</span>
+                    <span class="tab-text">NDVI Vegetation</span>
+                    <span class="tab-badge">Agriculture</span>
+                </button>
+                <button class="tab-btn" data-module="flood">
+                    <span class="tab-icon">🌊</span>
+                    <span class="tab-text">Flood Detection</span>
+                    <span class="tab-badge">Disaster</span>
+                </button>
+                <button class="tab-btn" data-module="building">
+                    <span class="tab-icon">🏠</span>
+                    <span class="tab-text">Building Extraction</span>
+                    <span class="tab-badge">Urban</span>
+                </button>
+                <button class="tab-btn" data-module="landcover">
+                    <span class="tab-icon">🗺️</span>
+                    <span class="tab-text">Land Cover Classification</span>
+                    <span class="tab-badge">Climate</span>
+                </button>
+            </div>
+
+            <!-- Analysis Content Area -->
+            <div class="analysis-display-grid">
+                <div class="analysis-viewer">
+                    <div class="analysis-image-wrapper">
+                        <div class="analysis-loading hidden" id="analysis-loading">
+                            <div class="spinner"></div>
+                            <p>Executing Computer Vision Algorithms...</p>
+                        </div>
+                        <img id="analysis-output-img" src="" alt="Analysis Map Output">
+                    </div>
+                </div>
+
+                <div class="analysis-meta">
+                    <h3 id="analysis-module-title">🌿 NDVI Vegetation Health Index</h3>
+                    <p class="analysis-desc" id="analysis-module-desc">
+                        Select a module above to run spectral segmentation and feature detection.
+                    </p>
+
+                    <!-- Stats Cards -->
+                    <div class="analysis-stats-container" id="analysis-stats-container">
+                        <!-- Dynamic stat items inserted via JS -->
+                    </div>
+
+                    <!-- Analysis Chart Area -->
+                    <div class="analysis-chart-wrapper" id="analysis-chart-wrapper">
+                        <canvas id="analysis-chart"></canvas>
+                    </div>
+
+                    <div class="analysis-actions">
+                        <a id="analysis-download-btn" href="#" class="btn-primary-sm" download>
+                            📥 Export Analysis Map & Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Global Summary Dashboard (Radar Chart) -->
+        <section class="global-dashboard-section card glassmorphism hidden" id="global-dashboard-section">
+            <div class="section-title-wrapper" style="text-align: center; margin-bottom: 2rem;">
+                <h2 class="section-title">🌐 Global Region Fingerprint</h2>
+                <p class="section-desc">A unified view of all post-processing metrics (Updates as modules are run).</p>
+            </div>
+            
+            <div class="radar-chart-container">
+                <canvas id="radar-chart"></canvas>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <p>🛰️ <strong>Satellite Cloud Removal & Analysis System</strong> | Smart India Hackathon (SIH 2026)</p>
+            <p class="footer-sub">Theme: Space Technology | Problem Statement ID: 26209 | Category: Software</p>
+        </footer>
+    </div>
+
+    <!-- Chart.js for Advanced Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- html2pdf for Report Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Main JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

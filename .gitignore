@@ -1,0 +1,24 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Python Bytecode & Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary Uploads & Generated Maps (keep directory structure)
+static/uploads/*
+!static/uploads/.gitkeep
+static/results/*
+!static/results/.gitkeep
+static/analysis/*
+!static/analysis/.gitkeep
+
+# OS / Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
