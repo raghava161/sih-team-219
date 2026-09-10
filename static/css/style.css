@@ -379,6 +379,73 @@ body {
     box-shadow: none;
 }
 
+/* Validation Error Banner */
+.validation-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 1rem;
+    padding: 14px 16px;
+    background: rgba(255, 77, 77, 0.12);
+    border: 1px solid rgba(255, 77, 77, 0.5);
+    border-radius: var(--radius-md);
+    animation: shakeIn 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shakeIn {
+    0%   { transform: translateX(0); opacity: 0; }
+    20%  { transform: translateX(-8px); opacity: 1; }
+    40%  { transform: translateX(8px); }
+    60%  { transform: translateX(-5px); }
+    80%  { transform: translateX(3px); }
+    100% { transform: translateX(0); }
+}
+
+.validation-error-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.validation-error-body {
+    flex: 1;
+}
+
+.validation-error-body strong {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ff6b6b;
+    margin-bottom: 4px;
+}
+
+.validation-error-body p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.validation-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: var(--transition);
+}
+
+.validation-close-btn:hover {
+    color: var(--accent-red);
+    background: rgba(255,77,77,0.15);
+}
+
+
+
 .btn-secondary {
     display: inline-flex;
     align-items: center;

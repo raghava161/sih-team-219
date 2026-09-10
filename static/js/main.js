@@ -52,6 +52,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const maskImage = document.getElementById('mask-image');
     const magnifierGlass = document.getElementById('magnifier-glass');
     const globalDashboardSection = document.getElementById('global-dashboard-section');
+    const validationError = document.getElementById('validation-error');
+    const validationErrorMsg = document.getElementById('validation-error-msg');
+    const validationCloseBtn = document.getElementById('validation-close-btn');
+
+    // Helper: show/hide styled validation error banner
+    function showValidationError(msg) {
+        validationErrorMsg.textContent = msg;
+        // Re-trigger animation by toggling hidden
+        validationError.classList.add('hidden');
+        void validationError.offsetWidth; // force reflow
+        validationError.classList.remove('hidden');
+        // Scroll into view
+        validationError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideValidationError() {
+        validationError.classList.add('hidden');
+    }
+
+    if (validationCloseBtn) {
+        validationCloseBtn.addEventListener('click', hideValidationError);
+    }
 
     // --- File Drag & Drop Handlers ---
     dropArea.addEventListener('click', (e) => {
@@ -116,9 +138,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Image Processing Request ---
     processBtn.addEventListener('click', async () => {
         if (!selectedFile) {
-            alert('Please select or drag a cloudy satellite image first!');
+            showValidationError('Please select or drag a cloudy satellite image first!');
             return;
         }
+        hideValidationError();
 
         const formData = new FormData();
         formData.append('file', selectedFile);
@@ -182,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
             triggerAnalysis('ndvi');
 
         } catch (err) {
-            alert(`Error: ${err.message}`);
+            showValidationError(err.message);
         } finally {
             loadingState.classList.add('hidden');
             processBtn.disabled = false;

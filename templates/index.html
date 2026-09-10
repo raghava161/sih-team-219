@@ -75,6 +75,16 @@
                     <span class="btn-text">⚡ Remove Clouds & Enhance</span>
                 </button>
 
+                <!-- Validation Error Banner -->
+                <div class="validation-error hidden" id="validation-error">
+                    <div class="validation-error-icon">🚫</div>
+                    <div class="validation-error-body">
+                        <strong>Image Rejected</strong>
+                        <p id="validation-error-msg">This is not a valid satellite image.</p>
+                    </div>
+                    <button class="validation-close-btn" id="validation-close-btn">✕</button>
+                </div>
+
                 <!-- Processing Loader State -->
                 <div class="loading-state hidden" id="loading">
                     <div class="spinner"></div>
@@ -82,6 +92,7 @@
                     <p class="loading-sub">Applying CLAHE, dehazing & unsharp mask filters</p>
                 </div>
             </section>
+
 
             <!-- Right Column: Results & Metrics Dashboard -->
             <section class="card results-card glassmorphism hidden" id="results-card">

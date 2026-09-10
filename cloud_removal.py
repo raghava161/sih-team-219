@@ -52,7 +52,6 @@ class CloudRemover:
         total_px = float(gray.size)
 
         # ── 1. Clipart / Vector Graphic / Pure Black & White Silhouette Filter ─────
-        # Silhouettes, drawings, and clipart consist almost entirely of extreme black (< 20) and extreme white (> 235)
         black_px = np.sum(gray < 20)
         white_px = np.sum(gray > 235)
         extreme_ratio = (black_px + white_px) / total_px
@@ -74,6 +73,7 @@ class CloudRemover:
             return False, "⚠️ Invalid Image: Solid blank or single-color image detected. No terrain features found."
 
         return True, "Valid satellite image"
+
 
     def process(self, input_path, output_path, mask_path=None):
         """
